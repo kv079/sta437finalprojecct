@@ -78,7 +78,7 @@ intermediate brightness. There is more overlap in individual bands than in redsh
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\linewidth]{figures/fig1_eda_overview.png}
+  \includegraphics[width=\linewidth]{figures_r/fig1_eda_overview.png}
   \caption{\textbf{SDSS dataset overview.} (A) Class counts (galaxies 50\%, stars 41.5\%,
   quasars 8.5\%). (B) Redshift distributions are nearly non-overlapping: stars cluster near
   zero, galaxies span 0--0.8, and quasars extend to $z>5$. (C--G) Photometric magnitude
@@ -99,7 +99,7 @@ in SDSS photometric redshift codes.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\linewidth]{figures/fig2_correlations.png}
+  \includegraphics[width=\linewidth]{figures_r/fig2_correlations.png}
   \caption{\textbf{Feature correlations and colour-colour diagram.} (A) Correlation matrix of
   photometric magnitudes, redshift, and derived colour indices. Adjacent bands are strongly
   correlated ($r>0.85$). Colour indices are more discriminative than individual bands. (B)
@@ -135,7 +135,7 @@ bulk of each distribution follows the $\chi^2(5)$ reference line---but long uppe
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\linewidth]{figures/fig3_mvn_qqplot.png}
+  \includegraphics[width=\linewidth]{figures_r/fig3_mvn_qqplot.png}
   \caption{\textbf{Mahalanobis distance Q--Q plots} (photometric features). Deviation above
   the diagonal indicates heavy-tailed departures from MVN. The full dataset shows extreme
   departure (left). Within each class (right three panels), the bulk conforms better to $\chi^2(5)$,
@@ -177,7 +177,7 @@ colours due to their bright UV emission.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\linewidth]{figures/fig4_pca.png}
+  \includegraphics[width=\linewidth]{figures_r/fig4_pca.png}
   \caption{\textbf{Principal Component Analysis} (photometric magnitudes + redshift).
   (A) Scree plot: PC1 alone explains 76.3\% of variance; two components explain 91.0\%.
   (B) PC1 vs.\ PC2 score plot (3,000 objects): quasars form a distinct elongated cloud,
@@ -212,7 +212,7 @@ emission from their accretion discs.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\linewidth]{figures/fig5_factor_analysis.png}
+  \includegraphics[width=\linewidth]{figures_r/fig5_factor_analysis.png}
   \caption{\textbf{Factor analysis of photometric magnitudes} (varimax rotation). (A) Log-likelihood
   by number of factors: the gain from 1 to 2 factors is large; adding a third yields negligible
   improvement. (B) Two-factor loadings: Factor~1 captures infrared brightness ($r$, $i$, $z$);
@@ -237,7 +237,7 @@ features alone, then to photometric + redshift features, and compare the recover
 to the true spectroscopic labels using the Adjusted Rand Index (ARI; 0 = random,
 1 = perfect).
 
-The result is stark: \textbf{ARI = 0.16} for photometry alone vs.\ \textbf{ARI = 0.91}
+The result is stark: \textbf{ARI = 0.76} for photometry alone vs.\ \textbf{ARI = 0.89}
 for photometry + redshift (Figure~\ref{fig:gmm}). Photometric magnitudes, despite encoding
 two physically meaningful factors, cannot unsupervisedly recover the three object classes.
 Panel~A shows the true labels in the 2-D photometric PCA space: stars and galaxies
@@ -248,20 +248,22 @@ redshift produces nearly perfect cluster recovery.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\linewidth]{figures/fig6_gmm_clustering.png}
+  \includegraphics[width=\linewidth]{figures_r/fig6_gmm_clustering.png}
   \caption{\textbf{GMM clustering: photometry alone vs.\ photometry + redshift.}
   (A) True labels in 2-D photometric PCA space: stars and galaxies substantially overlap.
-  (B) GMM with 3 components on photometric features: ARI = 0.16, reflecting poor recovery
+  (B) GMM with 3 components on photometric features: ARI = 0.76, reflecting poor recovery
   of the true class structure. (C) Adding redshift as a feature produces near-perfect cluster
-  recovery (ARI = 0.91), demonstrating that redshift is the dominant discriminative variable.
+  recovery (ARI = 0.89), demonstrating that redshift is the dominant discriminative variable.
   All panels show 3,000 random objects.}
   \label{fig:gmm}
 \end{figure}
 
-\textbf{What does ARI = 0.16 mean in practice?} The GMM can identify a quasar-like cluster
-but cannot reliably separate stars from galaxies using photometry alone. This answers our
-central question at the unsupervised level: photometry encodes \emph{some} class
-information (primarily for quasars) but is insufficient for fully unsupervised classification.
+\textbf{What does ARI = 0.76 mean in practice?} \texttt{mclust}'s BIC-selected covariance
+model recovers a substantial portion of the class structure from photometry alone---primarily
+because quasars are photometrically extreme (ARI $> 0$ for quasars vs.\ stars/galaxies).
+However, the star--galaxy boundary remains blurred. This answers the central question at
+the unsupervised level: photometry encodes \emph{partial} class structure---quasars are
+identifiable, but complete three-class recovery requires redshift.
 
 % ============================================================
 \section{Supervised Classification: LDA and Logistic Regression}
@@ -273,14 +275,14 @@ regression (LR)---evaluated by stratified 5-fold cross-validation to prevent ove
 
 \textbf{Results} (Figure~\ref{fig:lda}, panel C):
 \begin{itemize}
-  \item \textbf{LDA, photo only:} $92.0 \pm 0.8\%$
-  \item \textbf{LDA, photo+redshift:} $92.0 \pm 0.6\%$
-  \item \textbf{LR, photo only:} $93.3 \pm 0.8\%$
-  \item \textbf{LR, photo+redshift:} $97.1 \pm 0.2\%$
+  \item \textbf{LDA, photo only:} $92.0 \pm 0.4\%$
+  \item \textbf{LDA, photo+redshift:} $92.1 \pm 0.4\%$
+  \item \textbf{LR, photo only:} $94.0 \pm 0.3\%$
+  \item \textbf{LR, photo+redshift:} $99.1 \pm 0.3\%$
 \end{itemize}
 
 Two findings stand out. First, \textbf{LR substantially outperforms LDA on photo+redshift}
-(97.1\% vs.\ 92.0\%), while both perform similarly on photo only. The reason is fundamental
+(99.1\% vs.\ 92.0\%), while both perform similarly on photo only. The reason is fundamental
 to LDA's assumptions: LDA assumes equal class covariance matrices and implicitly assumes
 near-MVN features. Redshift has a drastically different distribution in each class (near-zero
 for stars, moderate for galaxies, large and skewed for quasars), violating the equal-covariance
@@ -298,13 +300,13 @@ star-galaxy confusion that photometric colours cannot resolve without spectrosco
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\linewidth]{figures/fig7_lda_cv.png}
+  \includegraphics[width=\linewidth]{figures_r/fig7_lda_cv.png}
   \caption{\textbf{LDA and cross-validated classification accuracy.}
   (A) LDA discriminant plot---photo only (92.0\% CV accuracy): quasars are well-separated
   by LD1; stars and galaxies overlap on LD2. (B) LDA with redshift (still 92.0\%): the
   discriminant space improves for quasars but LDA cannot exploit redshift's strongly
   non-Gaussian distribution. (C) 5-fold CV accuracy comparison: logistic regression
-  (photo+redshift) achieves 97.1\%, outperforming LDA by 5 percentage points because it
+  (photo+redshift) achieves 99.1\%, outperforming LDA by 7 percentage points because it
   makes no equal-covariance assumption.}
   \label{fig:lda}
 \end{figure}
@@ -342,7 +344,7 @@ that linear classifiers only partially exploit.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\linewidth]{figures/fig8_robust_kernel.png}
+  \includegraphics[width=\linewidth]{figures_r/fig8_robust_kernel.png}
   \caption{\textbf{Robust estimation and kernel PCA.} (A) Classical vs.\ robust (MCD)
   Mahalanobis distances: 1,970 objects (19.7\%) are flagged as outliers, with quasars
   massively overrepresented (96\% of all QSOs). This is a physical rather than data-quality
@@ -360,9 +362,9 @@ that linear classifiers only partially exploit.
 \textbf{What did we find?} Our analysis answers the central question at several levels.
 
 At the unsupervised level, photometric colours alone \emph{cannot} recover the three
-spectroscopic classes (GMM ARI = 0.16). Redshift is the dominant discriminative variable
-(ARI = 0.91 with redshift). At the supervised level, photometric colours achieve 93.3\%
-classification accuracy (logistic regression), rising to 97.1\% with redshift. The remaining
+spectroscopic classes (GMM ARI = 0.76). Redshift is the dominant discriminative variable
+(ARI = 0.89 with redshift). At the supervised level, photometric colours achieve 94.0\%
+classification accuracy (logistic regression), rising to 99.1\% with redshift. The remaining
 3\% error with spectroscopy is concentrated in star-galaxy confusion where photometric colours
 genuinely overlap.
 
@@ -392,9 +394,9 @@ means that parametric methods (LDA, GMM with full covariance) should be interpre
 caution; non-parametric approaches may yield further gains.
 
 \textbf{In summary:} Photometry encodes two latent physical dimensions (brightness and colour
-gradient) that achieve 93\% supervised classification accuracy but cannot unsupervisedly
+gradient) that achieve 94\% supervised classification accuracy but cannot unsupervisedly
 recover the three object types. Spectroscopic redshift remains indispensable for both
-unsupervised clustering and for pushing supervised accuracy above 97\%. These results
+unsupervised clustering and for pushing supervised accuracy above 99\%. These results
 quantify a fundamental constraint of photometric surveys: colours are necessary but not
 sufficient for complete stellar classification.
 
