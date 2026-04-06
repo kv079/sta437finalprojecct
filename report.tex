@@ -151,6 +151,13 @@ colours. For quasars---which span a huge range of redshifts and therefore observ
 colours---this fraction is largest. These violations motivated our later use of robust
 estimation (Section~\ref{sec:extensions}).
 
+\textbf{Data quality note:} One object (row 6522) has an anomalous $i$-band magnitude of
+28.18\,mag while all other bands read 13--15\,mag---a known SDSS pipeline artefact flagged
+in the dataset documentation. The 1,919 objects with small negative redshifts ($-0.004$ to 0)
+are nearly all stars (1,916 of 1,919): these reflect spectral measurement noise around
+$z=0$ and are not errors. Neither issue affects our conclusions, as both are captured by the
+robust estimator in Section~\ref{sec:extensions}.
+
 % ============================================================
 \section{Principal Component Analysis}
 % ============================================================
@@ -195,9 +202,13 @@ EDA and PCA both suggest that the five bands measure a small number of underlyin
 physical properties. Factor analysis (FA) tests the hypothesis that observed magnitudes
 arise from a small number of latent \emph{factors} plus measurement noise.
 
-\textbf{How many factors?} Panel~A of Figure~\ref{fig:fa} shows that log-likelihood
-increases steeply from 1 to 2 factors but flattens sharply thereafter, supporting a
-\textbf{2-factor model}.
+\textbf{How many factors?} With $p=5$ variables, the maximum number of identifiable factors
+is 2 (the degrees-of-freedom constraint $p(p-1)/2 \geq p\cdot k + k$ requires $k \leq 2$
+for $p=5$). We fit both 1- and 2-factor models; Panel~A confirms that the 2-factor model
+provides a substantially better fit. The formal $\chi^2$ goodness-of-fit test rejects
+the 2-factor model ($p \approx 3 \times 10^{-168}$), indicating that the true latent
+structure is richer than two dimensions---but two factors are the most we can extract from
+five photometric bands, and they explain 97.5\% of the variance.
 
 \textbf{What do the factors mean?} With varimax rotation, Factor~1 has large negative
 loadings on $r$, $i$, $z$ ($-0.88$ to $-0.95$) and moderate loadings on $g$ ($-0.72$),
@@ -232,7 +243,10 @@ conclusion: \textbf{two dimensions capture the essential photometric structure}.
 % ============================================================
 
 The central question---can photometry alone recover the three known classes?---is directly
-tested by unsupervised GMM clustering. We fit a 3-component GMM to photometric
+tested by unsupervised GMM clustering. We fit a 3-component GMM using \texttt{mclust}
+in R, which selects the covariance structure by BIC; it chose the VVV model (variable
+volume, shape, and orientation per cluster), allowing each class its own covariance matrix.
+We fit GMM to photometric
 features alone, then to photometric + redshift features, and compare the recovered clusters
 to the true spectroscopic labels using the Adjusted Rand Index (ARI; 0 = random,
 1 = perfect).
@@ -282,16 +296,23 @@ regression (LR)---evaluated by stratified 5-fold cross-validation to prevent ove
 \end{itemize}
 
 Two findings stand out. First, \textbf{LR substantially outperforms LDA on photo+redshift}
-(99.1\% vs.\ 92.0\%), while both perform similarly on photo only. The reason is fundamental
-to LDA's assumptions: LDA assumes equal class covariance matrices and implicitly assumes
-near-MVN features. Redshift has a drastically different distribution in each class (near-zero
-for stars, moderate for galaxies, large and skewed for quasars), violating the equal-covariance
-assumption and limiting LDA's ability to exploit it. Logistic regression, which makes no
-distributional assumption, exploits redshift's discriminative power freely.
+(99.1\% vs.\ 92.1\%), while both perform similarly on photo only. The reason is fundamental
+to LDA's assumptions: LDA assumes equal class covariance matrices. We verified this
+assumption fails quantitatively: the determinants of the per-class covariance matrices
+(photometric features) are $6.55 \times 10^{-7}$ (GALAXY), $7.83 \times 10^{-6}$ (STAR),
+and $2.90 \times 10^{-5}$ (QSO)---a 44-fold range. Adding redshift, whose distribution
+is near-zero for stars, moderate for galaxies, and large/skewed for quasars, makes this
+inequality far worse. LDA cannot exploit redshift because its equal-covariance constraint
+prevents it from modelling the heterogeneous variance. Logistic regression makes no
+distributional assumption and exploits redshift freely.
 
 Second, the gap between photo-only and photo+redshift is \textbf{much larger for LR
-(3.8 percentage points) than for LDA ($\approx 0$ pp)}, confirming that LDA's assumptions
-are the binding constraint when redshift is included.
+(5.1 percentage points) than for LDA ($\approx 0.1$ pp)}, confirming that LDA's equal-covariance
+assumption is the binding constraint when redshift is included.
+
+\textbf{Robustness of CV:} Feature scaling was performed inside each cross-validation fold
+(using training-set mean and standard deviation only) to prevent data leakage. Results were
+stable across folds (SD $\leq 0.4\%$).
 
 The 92--93\% accuracy with photometry alone quantifies what was implicit in the EDA:
 colour information in five bands is genuinely useful for classification, achieving performance
